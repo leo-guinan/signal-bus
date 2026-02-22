@@ -1,0 +1,85 @@
+name: Signal Dispatcher
+
+on:
+  push:
+    paths:
+      - 'inbox/*.json'
+
+jobs:
+  dispatch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - name: Find new messages
+        id: messages
+        run: |
+          # Get all new/modified files in inbox/
+          FILES=$(git diff --name-only HEAD~1 HEAD -- 'inbox/*.json' 2>/dev/null || echo "")
+          if [ -z "$FILES" ]; then
+            echo "No new messages"
+            echo "count=0" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+          echo "count=$(echo "$FILES" | wc -l | tr -d ' ')" >> $GITHUB_OUTPUT
+          echo "files<<EOF" >> $GITHUB_OUTPUT
+          echo "$FILES" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+      - name: Process messages
+        if: steps.messages.outputs.count != '0'
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        run: |
+          echo "Processing ${{ steps.messages.outputs.count }} message(s)"
+          
+          while IFS= read -r FILE; do
+            [ -z "$FILE" ] && continue
+            echo "---"
+            echo "Processing: $FILE"
+            
+            TYPE=$(jq -r '.type' "$FILE")
+            SOURCE=$(jq -r '.source' "$FILE")
+            echo "Type: $TYPE | Source: $SOURCE"
+            
+            # Dispatch by type
+            case "$TYPE" in
+              design-batch-complete)
+                echo "→ Handling design batch completion"
+                node handlers/score-images.mjs "$FILE" || echo "Handler failed: $?"
+                ;;
+              bounty-detected)
+                echo "→ Handling bounty detection"
+                node handlers/estimate-bounty.mjs "$FILE" || echo "Handler failed: $?"
+                ;;
+              build-complete)
+                echo "→ Handling build completion"
+                node handlers/publish-receipt.mjs "$FILE" || echo "Handler failed: $?"
+                ;;
+              vps-health)
+                echo "→ Logging health check"
+                mkdir -p data
+                cp "$FILE" "data/$(basename $FILE)"
+                ;;
+              *)
+                echo "⚠ Unknown message type: $TYPE — archiving"
+                ;;
+            esac
+            
+            # Move to processed
+            mkdir -p processed
+            mv "$FILE" "processed/$(basename $FILE)"
+            
+          done <<< "${{ steps.messages.outputs.files }}"
+
+      - name: Commit results
+        if: steps.messages.outputs.count != '0'
+        run: |
+          git config user.name "signal-bus[bot]"
+          git config user.email "signal-bus@metaspn.network"
+          git add -A
+          git diff --cached --quiet || git commit -m "processed: $(ls processed/*.json 2>/dev/null | wc -l | tr -d ' ') message(s)"
+          git push

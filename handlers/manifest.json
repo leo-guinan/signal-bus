@@ -1,0 +1,28 @@
+{
+  "handlers": {
+    "design-batch-complete": {
+      "workflow": "score-images.yml",
+      "maxRuntime": "10m",
+      "estimatedCost": 0.02,
+      "description": "Download generated images, score with vision, pick winners, commit results"
+    },
+    "bounty-detected": {
+      "workflow": "estimate-bounty.yml",
+      "maxRuntime": "2m",
+      "estimatedCost": 0.01,
+      "description": "Run architecture-brain estimator against bounty description"
+    },
+    "build-complete": {
+      "workflow": "publish-receipt.yml",
+      "maxRuntime": "1m",
+      "estimatedCost": 0.00,
+      "description": "Format and publish build cost receipt to registry"
+    },
+    "vps-health": {
+      "workflow": "log-health.yml",
+      "maxRuntime": "1m",
+      "estimatedCost": 0.00,
+      "description": "Log VPS health check, alert only on degradation"
+    }
+  }
+}
