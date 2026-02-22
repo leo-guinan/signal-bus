@@ -62,6 +62,10 @@ jobs:
                 echo "→ Handling build completion"
                 node handlers/publish-receipt.mjs "$FILE" || echo "Handler failed: $?"
                 ;;
+              feedback)
+                echo "→ Processing feedback"
+                node handlers/process-feedback.mjs "$FILE" || echo "Handler failed: $?"
+                ;;
               vps-health)
                 echo "→ Logging health check"
                 mkdir -p data
