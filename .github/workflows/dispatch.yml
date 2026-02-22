@@ -5,6 +5,9 @@ on:
     paths:
       - 'inbox/*.json'
 
+permissions:
+  contents: write
+
 jobs:
   dispatch:
     runs-on: ubuntu-latest
