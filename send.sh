@@ -19,14 +19,17 @@ DIR="$(cd "$(dirname "$0")" && pwd)"
 INBOX="$DIR/inbox"
 FILE="$INBOX/${TIMESTAMP}-${TYPE}.json"
 
-cat > "$FILE" << EOF
-{
-  "type": "$TYPE",
-  "source": "$(hostname -s)",
-  "ts": "$TS_ISO",
-  "payload": ${PAYLOAD:-{}}
-}
-EOF
+HOSTNAME=$(hostname -s)
+node -e "
+const fs = require('fs');
+const msg = {
+  type: process.argv[1],
+  source: process.argv[2],
+  ts: process.argv[3],
+  payload: JSON.parse(process.argv[4] || '{}')
+};
+fs.writeFileSync(process.argv[5], JSON.stringify(msg, null, 2));
+" "$TYPE" "$HOSTNAME" "$TS_ISO" "${PAYLOAD:-{}}" "$FILE"
 
 cd "$DIR"
 git add inbox/
