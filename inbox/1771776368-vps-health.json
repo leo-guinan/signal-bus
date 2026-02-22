@@ -1,0 +1,9 @@
+{
+  "type": "vps-health",
+  "source": "ubuntu-2gb-ash-1",
+  "ts": "2026-02-22T16:06:08Z",
+  "payload": {
+    "status": "ok",
+    "memory": "test"
+  }
+}
