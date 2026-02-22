@@ -29,7 +29,7 @@ const msg = {
   payload: JSON.parse(process.argv[4] || '{}')
 };
 fs.writeFileSync(process.argv[5], JSON.stringify(msg, null, 2));
-" "$TYPE" "$HOSTNAME" "$TS_ISO" "${PAYLOAD:-{}}" "$FILE"
+" "$TYPE" "$HOSTNAME" "$TS_ISO" "${PAYLOAD:-"{}"}" "$FILE"
 
 cd "$DIR"
 git add inbox/
