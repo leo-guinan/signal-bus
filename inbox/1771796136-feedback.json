@@ -1,0 +1,12 @@
+{
+  "type": "feedback",
+  "source": "yeti-hat.com",
+  "ts": "2026-02-22T21:35:36.788Z",
+  "payload": {
+    "agent": "antihunter",
+    "from": "test",
+    "text": "Test feedback - delete me",
+    "category": "sticker-feedback",
+    "page": null
+  }
+}
