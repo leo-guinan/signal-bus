@@ -1,0 +1,6 @@
+{
+  "type": "vps-health",
+  "source": "ubuntu-2gb-ash-1",
+  "ts": "2026-02-22T16:04:46Z",
+  "payload": {"status":"ok","memory_free":"466MB","uptime":"up 4 weeks, 15 hours, 50 minutes"}}
+}
