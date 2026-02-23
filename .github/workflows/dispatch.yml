@@ -62,6 +62,11 @@ jobs:
                 echo "→ Handling build completion"
                 node handlers/publish-receipt.mjs "$FILE" || echo "Handler failed: $?"
                 ;;
+              revenue-route)
+                echo "→ Revenue routed: publishing receipt"
+                mkdir -p data/receipts
+                cp "$FILE" "data/receipts/$(basename $FILE)"
+                ;;
               feedback)
                 echo "→ Processing feedback"
                 node handlers/process-feedback.mjs "$FILE" || echo "Handler failed: $?"
